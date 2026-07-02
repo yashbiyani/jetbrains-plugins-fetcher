@@ -1,5 +1,3 @@
-# Ignore plugin XML files (contain sensitive data)
-data/*.xml
+# Plugin data published as workflow artifacts
+data/
 
-# Keep manifest but ignore other data files
-!data/manifest.json

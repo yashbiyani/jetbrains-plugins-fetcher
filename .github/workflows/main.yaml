@@ -8,15 +8,19 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: pip install requests
-      - run: python scripts/fetch_all_plugins.py
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Fetch all plugins
+        run: python scripts/fetch_all_plugins.py
+      - name: Upload plugin XMLs as artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          commit_message: "Update plugin compatibility snapshot $(date +'%Y-%m-%d')"
+          name: jetbrains-plugins-${{ github.run_number }}
+          path: data/
+          retention-days: 7
