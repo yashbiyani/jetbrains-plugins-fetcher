@@ -8,7 +8,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -17,10 +17,25 @@ jobs:
       - run: pip install requests
       - name: Fetch all plugins
         run: python scripts/fetch_all_plugins.py
-      - name: Upload plugin XMLs as artifacts
+      - name: Create Release and Upload Files
         if: always()
-        uses: actions/upload-artifact@v4
+        run: |
+          cd releases
+          for version_dir in */; do
+            version="${version_dir%/}"
+            if [ "$version" != "RELEASES.md" ]; then
+              # Create zip for this version
+              zip -r "${version}.zip" "$version/" -q
+            fi
+          done
+          cd ..
+      - name: Publish to GitHub Release
+        uses: ncipollo/release-action@v1
         with:
-          name: jetbrains-plugins-${{ github.run_number }}
-          path: data/
-          retention-days: 7
+          tag: latest-plugins
+          name: Latest JetBrains Plugins
+          bodyFile: releases/RELEASES.md
+          artifacts: "releases/*.zip"
+          allowUpdates: true
+          replacesArtifacts: true
+          token: ${{ secrets.GITHUB_TOKEN }}
