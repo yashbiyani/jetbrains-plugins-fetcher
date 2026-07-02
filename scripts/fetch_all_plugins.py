@@ -1,8 +1,9 @@
 import requests, json, datetime, os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import timezone
 
 PRODUCTS = ["IU", "IC", "PS", "WS", "PY", "PC", "RM", "CL",
-            "GO", "DB", "RD", "AI", "RR", "QA"]
+            "GO", "DB", "RD", "RR"]
 
 def latest_build(code):
     url = f"https://data.services.jetbrains.com/products/releases?code={code}&type=release&latest=true"
@@ -24,7 +25,7 @@ def fetch_one(code):
     return code, build, version, fname
 
 def main():
-    manifest = {"fetched_at": datetime.datetime.utcnow().isoformat(), "products": {}}
+    manifest = {"fetched_at": datetime.datetime.now(timezone.utc).isoformat(), "products": {}}
     with ThreadPoolExecutor(max_workers=8) as pool:  # parallel, but capped to be polite
         futures = {pool.submit(fetch_one, code): code for code in PRODUCTS}
         for fut in as_completed(futures):

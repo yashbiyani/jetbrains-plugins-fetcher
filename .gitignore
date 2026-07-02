@@ -1,0 +1,5 @@
+# Ignore plugin XML files (contain sensitive data)
+data/*.xml
+
+# Keep manifest but ignore other data files
+!data/manifest.json
